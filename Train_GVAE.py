@@ -18,7 +18,7 @@ def run_training(num_epoch, batch_size, lr):
         os.makedirs(model_save_dir)
 
     # load PANCREAS data
-    srcFolder = 'Dataset/Train/'
+    srcFolder = 'Dataset1/Train/'
     dat = loadImages(srcFolder)
     gt = loadGT(srcFolder)
 
@@ -42,7 +42,7 @@ def run_training(num_epoch, batch_size, lr):
 
     # training
     num_iter = int(math.ceil(N / batch_size))
-    print('Starting training ... %d iteration per epoch' % num_iter)
+    print('Starting GVAE training ... %d iteration per epoch' % num_iter)
 
     for i in range(num_epoch):
         rand_idx = np.random.permutation(N)

@@ -213,6 +213,8 @@ class SVVAE:
             conv3_l5_out = tf.nn.bias_add(conv3_l5, biases)
             level4_in = tf.nn.relu(conv3_l5_out, name=scope.name)
 
+            level4_in = level4_in + level4_out  # sum the residual from level4_out
+
         with tf.variable_scope('level4_DC') as scope:   # LEVEL 4 for Decoder
             prev_layer = level4_in
 
@@ -245,6 +247,8 @@ class SVVAE:
             biases = self._bias_variable('biases3_l4', [out_filters])
             conv3_l4_out = tf.nn.bias_add(conv3_l4, biases)
             level3_in = tf.nn.relu(conv3_l4_out, name=scope.name)
+
+            level3_in = level3_in + level3_out  # sum the residual from level3_out
 
         with tf.variable_scope('level3_DC') as scope:  # LEVEL 3 for Decoder
             prev_layer = level3_in
@@ -279,6 +283,8 @@ class SVVAE:
             conv3_l3_out = tf.nn.bias_add(conv3_l3, biases)
             level2_in = tf.nn.relu(conv3_l3_out, name=scope.name)
 
+            level2_in = level2_in + level2_out  # sum the residual from level2_out
+
         with tf.variable_scope('level2_DC') as scope:  # LEVEL 2 for Decoder
             prev_layer = level2_in
 
@@ -303,6 +309,8 @@ class SVVAE:
             biases = self._bias_variable('biases2_l2', [out_filters])
             conv2_l2_out = tf.nn.bias_add(conv2_l2, biases)
             level1_in = tf.nn.relu(conv2_l2_out, name=scope.name)
+
+            level1_in = level1_in + level1_out  # sum the residual from level1_out
 
         with tf.variable_scope('level1_DC') as scope:  # LEVEL 1 for Decoder
             prev_layer = level1_in
@@ -343,4 +351,5 @@ class SVVAE:
         self.z = z
         self.total_loss, self.recon_loss, self.kl_loss = total_loss, recon_loss, kl_loss
         self.x = x
+        self.y = y
         self.y_recon = y_recon

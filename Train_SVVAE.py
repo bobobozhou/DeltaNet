@@ -6,7 +6,7 @@ import tensorflow as tf
 import SimpleITK as sitk
 from Utilities import *
 import matplotlib.pyplot as plt
-from GVAE import GVAE
+from SVVAE import SVVAE
 
 
 def run_training(num_epoch, batch_size, lr):
@@ -18,18 +18,18 @@ def run_training(num_epoch, batch_size, lr):
         os.makedirs(model_save_dir)
 
     # load PANCREAS data
-    srcFolder = 'Dataset/Train/'
+    srcFolder = 'Dataset1/Train/'
     dat = loadImages(srcFolder)
     gt = loadGT(srcFolder)
     N = dat.shape[0]
 
-    # build GVAE
-    gvae = GVAE()
-    train_step = tf.train.AdamOptimizer(lr).minimize(gvae.total_loss)
+    # build SVVAE
+    svvae = SVVAE()
+    train_step = tf.train.AdamOptimizer(lr).minimize(svvae.total_loss)
 
     # generate graph model for debug - Tensorboard
-    # sess = tf.Session()
-    # writer = tf.summary.FileWriter('logs/', sess.graph)
+    sess = tf.Session()
+    writer = tf.summary.FileWriter('logs/', sess.graph)
 
     # open a training session
     sess = tf.InteractiveSession()
@@ -39,7 +39,7 @@ def run_training(num_epoch, batch_size, lr):
 
     # training
     num_iter = int(math.ceil(N / batch_size))
-    print('Starting training ... %d iteration per epoch' % num_iter)
+    print('Starting SVVAE training ... %d iteration per epoch' % num_iter)
 
     for i in range(num_epoch):
         rand_idx = np.random.permutation(N)
@@ -47,7 +47,8 @@ def run_training(num_epoch, batch_size, lr):
         for it in range(num_iter):
             idx = rand_idx[it*batch_size:(it+1)*batch_size]
             X_batch = dat[idx, :, :, :, :]
-            _, total_loss = sess.run([train_step, gvae.total_loss], feed_dict={gvae.x: X_batch})
+            Y_batch = gt[idx, :, :, :, :]
+            _, total_loss = sess.run([train_step, svvae.total_loss], feed_dict={svvae.x: X_batch, svvae.y: Y_batch})
             print("Iter [%d/%d] loss=%.6f" % (it, num_iter, total_loss))
 
         # print current epoch error
@@ -62,6 +63,6 @@ def run_training(num_epoch, batch_size, lr):
 
 if __name__ == '__main__':
     num_epoch = 10000000
-    batch_size = 2
-    lr = 1e-2
+    batch_size = 3
+    lr = 1e-5
     run_training(num_epoch, batch_size, lr)
